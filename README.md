@@ -1,48 +1,37 @@
-Keyterms
-==================
+# Keyterms
 
 XBlock to ease the process of managing Key Terms.
 
 The tool makes it easy for instructors to link to a Glossary
 from within their course.
 
-Installation
-------------
+## Installation
 
 
-System Administrator
-~~~~~~~~~~~~~~~~~~~~
+### System Administrator
 
 To install the XBlock on your platform,
 add the following to your `requirements.txt` file:
 
-    keyterms
+> keyterms
 
 You'll also need to add this to your `INSTALLED_APPS`:
 
-    keyterms
+> keyterms
 
 
-Course Staff
-~~~~~~~~~~~~
+### Course Staff
 
 To install the XBlock in your course,
 access your `Advanced Module List`:
 
-    Settings -> Advanced Settings -> Advanced Module List
-
+> Settings -> Advanced Settings -> Advanced Module List
 
 and add the following:
 
-    keyterms
+> keyterms
 
-
-Use
----
-
-
-Course Staff
-~~~~~~~~~~~~
+### Course Staff
 
 To add a Qualtrics Survey link to your course:
 

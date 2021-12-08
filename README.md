@@ -33,7 +33,7 @@ and add the following:
 
 ### Course Staff
 
-To add a Qualtrics Survey link to your course:
+To add a Key Terms block to your course:
 
 - go to a unit in Studio
 - select "Key Terms" from the Advanced Components menu

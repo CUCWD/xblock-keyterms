@@ -42,13 +42,13 @@ h2 {
     opacity: 0;
 }
 
-.allKeytermsList {
+/* .allKeytermsList {
     columns: 2;
     -webkit-columns: 2;
     -moz-columns: 2;
     list-style-position: inside;
     list-style-type: disc !important;
-}
+} */
 
 .bullets {
     list-style-position: inside;

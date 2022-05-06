@@ -9,6 +9,14 @@ h2 {
     font-weight: bold;
 }
 
+p#glossarymsg {
+    border-left: 5px solid #74c4e1 !important;
+    padding: 20px !important; 
+    margin-bottom: 10px !important;
+    margin-top: 10px !important;
+    background-color: #eef2f4 !important;
+}
+
 .keyterms_block .count {
     font-weight: bold;
 }
@@ -42,12 +50,38 @@ h2 {
     opacity: 0;
 }
 
-.allKeytermsList {
+/* .allKeytermsList {
     columns: 2;
     -webkit-columns: 2;
     -moz-columns: 2;
     list-style-position: inside;
     list-style-type: disc !important;
+} */
+
+.card-header {
+    padding: 0.25rem 0.25rem !important;
+}
+
+.card-header .collapsed {
+    background-color: #ccc !important;
+}
+
+.card-header:not(.collapsed) {
+    background-color: #d4d4d4 !important;
+}
+
+.card-header .fa {
+    transition: .3s transform ease-in-out;
+    font-style: normal !important;
+}
+
+.card-header .fa .pull-right {
+    margin-left: 0.3em;
+    float: right;
+}
+
+.card-header .collapsed .fa {
+    transform: rotate(90deg);
 }
 
 .bullets {
@@ -59,14 +93,16 @@ h2 {
     background-color: #4CAF50;
     border: none;
     color: white;
+    text-align: left !important;
     text-decoration: none;
     cursor: pointer;
     flex: 1;
-    margin: 5px;
+    margin: 2px;
     padding: 5px;
     display: inline-block;
     border-radius: 10px;
-    max-width: 46%;
+    min-width: 100%;
+    /*max-width: 46%;*/
     vertical-align: top;
     font-size: 15px;
 }

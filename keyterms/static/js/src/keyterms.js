@@ -201,13 +201,15 @@ function KeytermsXBlock(runtime, element) {
     }
 
     // initializing the data
+    
     $(function() { 
     // Getting courseid
         const url = window.location.href;
         courseid = getStringBetween(url, 'block\-v1:', 'type').slice(0,-1);
         
         // Setting glossary url
-        $("#glossarymsg").html(`Click on or hover the term to reveal the definitions on the <a target="_blank" rel="noopener noreferrer" href="http://localhost:2000/course/course-v1:${courseid}/glossary">Glossary</a> page.`)
+        // $("#glossarymsg").html(`Click on or hover the term to reveal the definitions on the <a target="_blank" rel="noopener noreferrer" href="http://localhost:2000/course/course-v1:${courseid}/glossary">Glossary</a> page.`)
+        $("#glossarymsg").html(`Click on the term to reveal definition(s), links to courseware textbook or page content and external links for additional information.`)
 
         // Getting all the keyterms
         courseid.replace(" ", "+");
@@ -219,84 +221,109 @@ function KeytermsXBlock(runtime, element) {
             keytermsJson = data;
             keytermsJson.forEach( keyterm => allKeytermsSet.add(keyterm["key_name"]));
         }).then(data=>
-            { 
-                // Showing information about definition on hover
-                $(".keytermli").each(function() {
-                    const keyterm = $(this).attr('id');
-                    var keyterminfo = getKeyTermInfo(keyterm);
+            {
 
-                    // Definitions
-                    if (keyterminfo["definitions"].length > 0) {
-                        var formattedContent = `<div class="outline-box"><h2>Definitions</h2><ul class="bullets">`;
-                        keyterminfo["definitions"].forEach(definition => {
-                            formattedContent += `<li>${definition["description"]}</li>`
-                        })
-                        formattedContent += `</ul></div>`;
-                    }
-
-                    // Textbooks
-                    if (keyterminfo["textbooks"].length > 0) {
-                        formattedContent += `<div class="outline-box"><h2>Textbooks</h2>`
-                        keyterminfo["textbooks"].forEach(textbook => {
-                            formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:18010/textbooks_api/course-v1:${courseid}/${textbook["textbook_link"]}' class="btn">`
-                            formattedContent += `${textbook["chapter"]}\n(Page ${textbook["page_num"]})`
-                            formattedContent += `</a>`
-                        })
-                        formattedContent += `</div>`;
-                    }
-                    
-                    // Lessons
-                    if (keyterminfo["lessons"].length > 0) {
-                        formattedContent += `<div class="outline-box"><h2>Lesson Pages</h2>`
-                        keyterminfo["lessons"].sort((a, b) => a.module_name === b.module_name ? (a.lesson_name > b.lesson_name ? 1: -1) : (a.module_name > b.module_name ? 1: -1))
-                        var currentheading = "";
-                        keyterminfo["lessons"].forEach(lesson => {
-                            if (currentheading != lesson["module_name"]) {
-                                currentheading = lesson["module_name"];
-                                formattedContent += `<h3 style="font-size:16px; text-decoration:underline;"> ${lesson["module_name"]} <h3>`
-                            }
-                            formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:2000/course/course-v1:${courseid}/${lesson["lesson_link"]}' class="btn">`
-                            formattedContent += `${lesson["lesson_name"]} / ${lesson["unit_name"]}`
-                            formattedContent += `</a>`
-                        })
-                        formattedContent += `</div>`;
-                    }
-
-                    // Resources
-                    if (keyterminfo["resources"].length > 0) {
-                        formattedContent += `<div class="outline-box"><h2>Resources</h2><ul class="bullets">`
-                        keyterminfo["resources"].forEach(resource => {
-                            formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href="${resource["resource_link"]}">${resource["friendly_name"]}</a></li>`
-                        })
-                        formattedContent += `</ul></div>`;
-                    }
-
-                    // Setting up the popover
-                    $(this).popover({
-                        html : true,
-                        content: formattedContent,
-                        title: keyterm,
-                        trigger: "manual",
-                    }).on("mouseenter", function() {
-                        var _this = this;
-                        $(this).popover("show");
-                        $(".popover").on("mouseleave", function() {
-                          $(_this).popover('hide');
-                        });
-                    }).on("mouseleave", function() {
-                        var _this = this;
-                        setTimeout(function() {
-                          if (!$(".popover:hover").length) {
-                            $(_this).popover("hide");
-                          }
-                        }, 100);
+                // Was adding code to style the accordian card header when clicked.
+                // `_.camelCase` from Lodash (https://lodash.com/) not working currently
+                // because this package is not installed. Was considering installing 
+                // Javascript library at platform level but it may be better to install
+                // at the XBlock level.
+                $(".card-header").each(function() {
+                    const keyterm = this.getElementsByTagName("button")[0].innerText;
+                    const keytermCardHeaderId = $(this).attr('id');
+                    const keytermDataTarget = _.camelCase("collapse" + keyterm);
+                    const keytermDataTargetHashed = "#" + keytermDataTarget;
+                    $(keytermDataTargetHashed).on('show.bs.collapse', function () {
+                        $(keytermCardHeaderId).addClass("show");
                     });
+                    $(keytermDataTargetHashed).on('hide.bs.collapse', function () {
+                        $(keytermCardHeaderId).removeClass("show");
+                    });
+
                 });
 
+                // Todo: Need to bring in content for `$(".card-body")` for each key-term
+                // similar to how the Glossary page handles the terms. Code below is commented
+                // out since that was specific to Popover <li>, however, most of this should 
+                // be reusable for the accordion card-body.
+
+                // Showing information about definition on hover
+                // $(".keytermli").each(function() {
+                //     const keyterm = $(this).attr('id');
+                //     var keyterminfo = getKeyTermInfo(keyterm);
+
+                //     // Definitions
+                //     if (keyterminfo["definitions"].length > 0) {
+                //         var formattedContent = `<div class="outline-box"><h2>Definitions</h2><ul class="bullets">`;
+                //         keyterminfo["definitions"].forEach(definition => {
+                //             formattedContent += `<li>${definition["description"]}</li>`
+                //         })
+                //         formattedContent += `</ul></div>`;
+                //     }
+
+                //     // Textbooks
+                //     if (keyterminfo["textbooks"].length > 0) {
+                //         formattedContent += `<div class="outline-box"><h2>Textbooks</h2>`
+                //         keyterminfo["textbooks"].forEach(textbook => {
+                //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:18010/textbooks_api/course-v1:${courseid}/${textbook["textbook_link"]}' class="btn">`
+                //             formattedContent += `${textbook["chapter"]}\n(Page ${textbook["page_num"]})`
+                //             formattedContent += `</a>`
+                //         })
+                //         formattedContent += `</div>`;
+                //     }
+                    
+                //     // Lessons
+                //     if (keyterminfo["lessons"].length > 0) {
+                //         formattedContent += `<div class="outline-box"><h2>Lesson Pages</h2>`
+                //         keyterminfo["lessons"].sort((a, b) => a.module_name === b.module_name ? (a.lesson_name > b.lesson_name ? 1: -1) : (a.module_name > b.module_name ? 1: -1))
+                //         var currentheading = "";
+                //         keyterminfo["lessons"].forEach(lesson => {
+                //             if (currentheading != lesson["module_name"]) {
+                //                 currentheading = lesson["module_name"];
+                //                 formattedContent += `<h3 style="font-size:16px; text-decoration:underline;"> ${lesson["module_name"]} <h3>`
+                //             }
+                //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:2000/course/course-v1:${courseid}/${lesson["lesson_link"]}' class="btn">`
+                //             formattedContent += `${lesson["lesson_name"]} / ${lesson["unit_name"]}`
+                //             formattedContent += `</a>`
+                //         })
+                //         formattedContent += `</div>`;
+                //     }
+
+                //     // Resources
+                //     if (keyterminfo["resources"].length > 0) {
+                //         formattedContent += `<div class="outline-box"><h2>Resources</h2><ul class="bullets">`
+                //         keyterminfo["resources"].forEach(resource => {
+                //             formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href="${resource["resource_link"]}">${resource["friendly_name"]}</a></li>`
+                //         })
+                //         formattedContent += `</ul></div>`;
+                //     }
+
+                //     // Setting up the popover
+                //     $(this).popover({
+                //         html : true,
+                //         content: formattedContent,
+                //         title: keyterm,
+                //         trigger: "manual",
+                //     }).on("mouseenter", function() {
+                //         var _this = this;
+                //         $(this).popover("show");
+                //         $(".popover").on("mouseleave", function() {
+                //           $(_this).popover('hide');
+                //         });
+                //     }).on("mouseleave", function() {
+                //         var _this = this;
+                //         setTimeout(function() {
+                //           if (!$(".popover:hover").length) {
+                //             $(_this).popover("hide");
+                //           }
+                //         }, 100);
+                //     });
+                // });
+
                 // Enabling popovers
-                $('[data-toggle="popover"]').popover({
-                    container: 'html'
-                })
+                // $('[data-toggle="popover"]').popover({
+                //     container: 'html'
+                // })
 
                 var data = {course_id: courseid};
                 $.ajax({

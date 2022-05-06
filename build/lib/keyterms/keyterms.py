@@ -115,6 +115,7 @@ class KeytermsXBlock(XBlock):
         """
         self.keytermhtml = ""
         for keyterm in list:
-            listItem = '<li><a class="keytermli" target="_blank" rel="noopener noreferrer" id="{keyterm}" href="http://{glossaryurl}:2000/course/course-v1:{courseid}/glossary?scrollTo={keyterm}">{keyterm}</a></li>\n'
+            # listItem = '<li class="list-group-item"><a class="keytermli" target="_blank" rel="noopener noreferrer" id="{keyterm}" href="http://{glossaryurl}:2000/course/course-v1:{courseid}/glossary?scrollTo={keyterm}">{keyterm}</a></li>\n'
+            listItem = '<li class="keytermli list-group-item">{keyterm}</li>\n'
             listItem = listItem.format(keyterm = keyterm, glossaryurl = self.root_url, courseid=course_id)
             self.keytermhtml += bleach.clean(listItem, tags=self.allowedtags)

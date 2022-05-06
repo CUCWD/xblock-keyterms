@@ -2,8 +2,10 @@
 
 // https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/preventing_xss/preventing_xss.html
 
-function KeytermsXBlock(runtime, element) {
+function KeytermsXBlock(runtime, element, initData) {
     // Getting the handles for the python functions
+    var keyTermsAPIRootURL = initData.keyTermsAPIRootURL;
+    var learningMicrofrontendURL = initData.learningMicrofrontendURL;
     var addkeywordhandlerUrl = runtime.handlerUrl(element, 'add_keyterm');
     var removekeywordhandlerUrl = runtime.handlerUrl(element, 'remove_keyterm');
     var editlessonhandlerUrl = runtime.handlerUrl(element, 'edit_lesson');
@@ -211,9 +213,11 @@ function KeytermsXBlock(runtime, element) {
         // $("#glossarymsg").html(`Click on or hover the term to reveal the definitions on the <a target="_blank" rel="noopener noreferrer" href="http://localhost:2000/course/course-v1:${courseid}/glossary">Glossary</a> page.`)
         $("#glossarymsg").html(`Click on the term to reveal definition(s), links to courseware textbook or page content and external links for additional information.`)
 
-        // Getting all the keyterms
+        // Getting all the keyterms. For devstack environments make sure to add 
+        // `127.0.0.1  edx.devstack.keyterms-api` to `/etc/hosts` for your host machine since this
+        // API call is handled in the client side.
         courseid.replace(" ", "+");
-        resturl = 'http://localhost:18500/api/v1/course_terms/?course_id=course-v1:'+ courseid;
+        resturl = keyTermsAPIRootURL + '/api/v1/course_terms/?course_id=course-v1:'+ courseid;
 
         $.getJSON(resturl,
         function(data, err) {
@@ -228,19 +232,19 @@ function KeytermsXBlock(runtime, element) {
                 // because this package is not installed. Was considering installing 
                 // Javascript library at platform level but it may be better to install
                 // at the XBlock level.
-                $(".card-header").each(function() {
-                    const keyterm = this.getElementsByTagName("button")[0].innerText;
-                    const keytermCardHeaderId = $(this).attr('id');
-                    const keytermDataTarget = _.camelCase("collapse" + keyterm);
-                    const keytermDataTargetHashed = "#" + keytermDataTarget;
-                    $(keytermDataTargetHashed).on('show.bs.collapse', function () {
-                        $(keytermCardHeaderId).addClass("show");
-                    });
-                    $(keytermDataTargetHashed).on('hide.bs.collapse', function () {
-                        $(keytermCardHeaderId).removeClass("show");
-                    });
+                // $(".card-header").each(function() {
+                //     const keyterm = this.getElementsByTagName("button")[0].innerText;
+                //     const keytermCardHeaderId = $(this).attr('id');
+                //     const keytermDataTarget = _.camelCase("collapse" + keyterm);
+                //     const keytermDataTargetHashed = "#" + keytermDataTarget;
+                //     $(keytermDataTargetHashed).on('show.bs.collapse', function () {
+                //         $(keytermCardHeaderId).addClass("show");
+                //     });
+                //     $(keytermDataTargetHashed).on('hide.bs.collapse', function () {
+                //         $(keytermCardHeaderId).removeClass("show");
+                //     });
 
-                });
+                // });
 
                 // Todo: Need to bring in content for `$(".card-body")` for each key-term
                 // similar to how the Glossary page handles the terms. Code below is commented

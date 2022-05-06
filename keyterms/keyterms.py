@@ -74,7 +74,12 @@ class KeytermsXBlock(XBlock):
         frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
-        frag.initialize_js('KeytermsXBlock')
+        frag.initialize_js(
+            'KeytermsXBlock', {
+                'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
+                'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
+            }
+        )
         return frag
 
     def studio_view(self, context=None):
@@ -84,7 +89,12 @@ class KeytermsXBlock(XBlock):
         frag.add_css(self.resource_string("static/css/popover.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
-        frag.initialize_js('KeytermsXBlock')
+        frag.initialize_js(
+            'KeytermsXBlock', {
+                'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
+                'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
+            }
+        )
         return frag
 
     @XBlock.json_handler

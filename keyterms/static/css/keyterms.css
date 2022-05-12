@@ -77,11 +77,11 @@ p.glossarymsg {
 }
 
 .card:nth-child(odd) {
-    background-color: #d4d4d4 !important;
+    background-color: white !important;
 }
 
 .card:nth-child(even) {
-    background-color: white !important;
+    background-color: #d4d4d4 !important;
 }
 
 .card-header .fa {
@@ -91,6 +91,7 @@ p.glossarymsg {
 
 .card-header .fa .pull-right {
     margin-left: 0.3em;
+    line-height: 1.4em !important;
     float: right;
 }
 

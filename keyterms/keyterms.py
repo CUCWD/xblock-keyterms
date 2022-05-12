@@ -82,13 +82,17 @@ class KeytermsXBlock(XBlock):
         return frag
 
     def studio_view(self, context=None):
+        """
+        The primary view of the KeytermsXBlock, shown to staff course
+        developers when viewing the courses.
+        """
         html = self.resource_string("static/html/keytermsstudio.html")
         frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_css(self.resource_string("static/css/popover.css"))
         frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
         frag.add_css(self.resource_string("static/css/collapse.css"))
+        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
         frag.initialize_js(
             'KeytermsXBlock', {
@@ -139,13 +143,8 @@ class KeytermsXBlock(XBlock):
         """
         self.keytermhtml = ""
         for keyterm in list:
-            # listItem = '<li class="list-group-item"><a class="keytermli" target="_blank" rel="noopener noreferrer" id="{keyterm}" href="http://{glossaryurl}:2000/course/course-v1:{courseid}/glossary?scrollTo={keyterm}">{keyterm}</a></li>\n'
-            # listItem = '<li class="keytermli list-group-item">{keyterm}</li>\n'
-            # listItem = listItem.format(keyterm = keyterm, glossaryurl = self.root_url, courseid=course_id)
-            # listItem = listItem.format(keyterm = keyterm)
-            # self.keytermhtml += bleach.clean(listItem, tags=self.allowedtags)
             div_parent_id = "#allKeytermsList"
-            keyterm_card_header_id = pydash.camel_case("heading" + keyterm) # pydash.kebab_case(keyterm)
+            keyterm_card_header_id = pydash.camel_case("heading" + keyterm)
             keyterm_data_target = pydash.camel_case("collapse" + keyterm)
             keyterm_data_target_hashed = f'#{keyterm_data_target}'
             keyterm_show = ("show" if list[0] == keyterm else "")

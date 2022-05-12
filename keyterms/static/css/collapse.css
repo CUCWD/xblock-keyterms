@@ -1,3 +1,7 @@
+/*
+Bootstrap 4 Collapse Styling
+*/
+
 .img-responsive {
     display: block;
     max-width: 100%;
@@ -144,7 +148,7 @@ tbody.collapse.in {
 
 .pull-right {
     float: right !important;
-    line-height: 40px !important;
+    line-height: 100% !important;
     display: inline-block;
 }
 
@@ -199,7 +203,7 @@ tbody.collapse.in {
     line-height: 40px;
     border: 0;
     width: 100%;
-    padding: 10px 20px 0px 20px;
+    padding: 10px 20px 10px 20px;
     background-image: none;
     text-shadow: none;
     box-shadow: none;

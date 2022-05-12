@@ -1,11 +1,17 @@
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
 <div class="keyterms_block xmodule_display xmodule_HtmlBlock">
-    <!--    
-    <h1>Lesson Summary</h1>
+
+    <!-- <h1>Lesson Summary</h1>
     <div class="lessonsummary">{self.lessonsummary}</div>
-    <br>
-    -->
-    <h1>Key Terms</h1>
-    <p id="glossarymsg"></p>
-    <ul class="allKeytermsList">{self.keytermhtml}</ul>
-    <br><br><br><br><br><br><br><br><br>
+    <br> -->
+
+    <h3 class="hd hd-3">Key Terms</h3>
+    <p class="glossarymsg"></p>
+    <!-- <ul class="allKeytermsList">{self.keytermhtml}</ul> -->
+    <div class="accordion" id="allKeytermsList">
+        {self.keytermhtml}
+    </div>
 </div>

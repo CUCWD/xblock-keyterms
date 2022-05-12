@@ -9,6 +9,7 @@ from django.conf import settings
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 import json
 import bleach
+import pydash
 
 class KeytermsXBlock(XBlock):
     """
@@ -38,12 +39,18 @@ class KeytermsXBlock(XBlock):
     )
 
     # Tags to allow in HTML, attempting to prevent XSS
-    allowedtags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 
-    'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'u', 'table', 'tbody', 'td', 'tr', 'th', 'img', 'em', 'br']
+    allowed_tags = [
+        'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'button', 'code', 'div', 'em',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'i', 'img', 'li', 'ol', 'p', 'strong',
+        'table', 'tbody', 'td', 'th', 'tr',
+        'u', 'ul'
+    ]
 
-    root_url = configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL)
-
-    root_url = "localhost"
+    allowed_attributes = [
+        'aria-controls', 'aria-expanded', 'aria-labelledby', 'class',
+        'data-parent', 'data-target', 'data-toggle', 'id', 'type'
+    ]
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -62,18 +69,39 @@ class KeytermsXBlock(XBlock):
         frag.add_css(self.resource_string("static/css/popover.css"))
         frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
+        frag.add_css(self.resource_string("static/css/collapse.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
-        frag.initialize_js('KeytermsXBlock')
+        frag.initialize_js(
+            'KeytermsXBlock', {
+                'cmsBaseURL': settings.CMS_BASE,
+                'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
+                'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
+            }
+        )
+
         return frag
 
     def studio_view(self, context=None):
+        """
+        The primary view of the KeytermsXBlock, shown to staff course
+        developers when viewing the courses.
+        """
         html = self.resource_string("static/html/keytermsstudio.html")
         frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_css(self.resource_string("static/css/popover.css"))
+        frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
+        frag.add_css(self.resource_string("static/css/collapse.css"))
+        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
-        frag.initialize_js('KeytermsXBlock')
+        frag.initialize_js(
+            'KeytermsXBlock', {
+                'cmsBaseURL': settings.CMS_BASE,
+                'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
+                'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
+            }
+        )
+
         return frag
 
     @XBlock.json_handler
@@ -81,7 +109,7 @@ class KeytermsXBlock(XBlock):
         """
         This handler is used to edit the lesson summary that is displayed to the user.
         """
-        self.lessonsummary = bleach.clean(data['lessonsummary'], tags=self.allowedtags)
+        self.lessonsummary = bleach.clean(data['lessonsummary'], tags=self.allowed_tags)
         return {"lessonsummary": self.lessonsummary}
 
     @XBlock.json_handler
@@ -115,6 +143,32 @@ class KeytermsXBlock(XBlock):
         """
         self.keytermhtml = ""
         for keyterm in list:
-            listItem = '<li><a class="keytermli" target="_blank" rel="noopener noreferrer" id="{keyterm}" href="http://{glossaryurl}:2000/course/course-v1:{courseid}/glossary?scrollTo={keyterm}">{keyterm}</a></li>\n'
-            listItem = listItem.format(keyterm = keyterm, glossaryurl = self.root_url, courseid=course_id)
-            self.keytermhtml += bleach.clean(listItem, tags=self.allowedtags)
+            div_parent_id = "#allKeytermsList"
+            keyterm_card_header_id = pydash.camel_case("heading" + keyterm)
+            keyterm_data_target = pydash.camel_case("collapse" + keyterm)
+            keyterm_data_target_hashed = f'#{keyterm_data_target}'
+            keyterm_show = ("show" if list[0] == keyterm else "")
+            cardItem = '<div class="card">\n'
+            cardItem += '   <div class="card-header" id="{keyterm_card_header_id}">\n'
+            cardItem += '      <h5 class="mb-0">\n'
+            cardItem += '         <button class="collapse-btn collapse-btn-link" data-toggle="collapse" data-target="{keyterm_data_target_hashed}" aria-expanded="true" aria-controls="{keyterm_data_target}">\n'
+            cardItem += '            <i class="fa fa-chevron-down pull-right"></i>'
+            cardItem += '            <div class="keyterm-title"> {keyterm} </div> \n'
+            cardItem += '         </button>\n'
+            cardItem += '      </h5>\n'
+            cardItem += '   </div>\n'
+            cardItem += '   <div id="{keyterm_data_target}" class="collapse {keyterm_show}" aria-labelledby="{keyterm_card_header_id}" data-parent="{div_parent_id}">\n'
+            cardItem += '      <div class="card-body">\n'
+            cardItem += '         Example Content.\n'
+            cardItem += '      </div>\n'
+            cardItem += '   </div>\n'
+            cardItem += '</div>\n'
+            cardItem = cardItem.format(
+                div_parent_id = div_parent_id,
+                keyterm_card_header_id = keyterm_card_header_id,
+                keyterm_data_target_hashed = keyterm_data_target_hashed,
+                keyterm_data_target = keyterm_data_target,
+                keyterm = keyterm,
+                keyterm_show = keyterm_show
+            )
+            self.keytermhtml += bleach.clean(cardItem, tags=self.allowed_tags, attributes=self.allowed_attributes)

@@ -32,6 +32,7 @@ setup(
     ],
     install_requires=[
         'XBlock',
+        'pydash'
     ],
     entry_points={
         'xblock.v1': [

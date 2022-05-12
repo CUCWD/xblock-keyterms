@@ -15,11 +15,6 @@ add the following to your `requirements.txt` file:
 
 > keyterms
 
-You'll also need to add this to your `INSTALLED_APPS`:
-
-> keyterms
-
-
 ### Course Staff
 
 To install the XBlock in your course,

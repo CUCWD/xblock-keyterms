@@ -2,6 +2,20 @@
 
 // https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/preventing_xss/preventing_xss.html
 
+// Rather than import lodash, just get the function we want.
+function camelize(str) {
+    return str.toLowerCase()
+        // Replaces any - or _ characters with a space 
+        .replace(/[-_]+/g, ' ')
+        // Removes any non alphanumeric characters 
+        .replace(/[^\w\s]/g, '')
+        // Uppercases the first character in each group immediately following a space 
+        // (delimited by spaces) 
+        .replace(/ (.)/g, function($1) { return $1.toUpperCase(); })
+        // Removes spaces 
+        .replace(/ /g, '');
+}
+
 function KeytermsXBlock(runtime, element, initData) {
     // Getting the handles for the python functions
     var keyTermsAPIRootURL = initData.keyTermsAPIRootURL;
@@ -23,7 +37,7 @@ function KeytermsXBlock(runtime, element, initData) {
 
     // Used to update the keyterms html
     function updateKeyterms(result) {
-       edx.HtmlUtils.setHtml($('.allKeytermsList'), edx.HtmlUtils.HTML(result.keytermhtml));
+        edx.HtmlUtils.setHtml($('.allKeytermsList'), edx.HtmlUtils.HTML(result.keytermhtml));
     }
 
     // Used for getting courseID
@@ -45,7 +59,7 @@ function KeytermsXBlock(runtime, element, initData) {
     $(".editLessonSummary").click(function(event) {
         event.preventDefault();
         var lesson = $(".lesson-field").val();
-        var data = {lessonsummary: lesson};
+        var data = { lessonsummary: lesson };
 
         $.ajax({
             type: "POST",
@@ -54,7 +68,7 @@ function KeytermsXBlock(runtime, element, initData) {
             success: updateSummary
         });
     });
-    
+
     // Used for editing the keyterms
     function populateOptions(result) {
         var available = $('#id_keyterms_from');
@@ -62,17 +76,17 @@ function KeytermsXBlock(runtime, element, initData) {
 
         // Adds each term to appropriate side of list
         allKeytermsSet.forEach(term => {
-            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-            gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
             (result.includedkeyterms).includes(term) ? edx.HtmlUtils.append($(chosen), html) : edx.HtmlUtils.append($(available), html);
         });
 
         // Handle search feature
-        $('#id_keyterms_input').keyup(function(){
+        $('#id_keyterms_input').keyup(function() {
             $('#id_keyterms_from').find('option').each(function() {
                 var txt = $(this).val();
                 var regex = new RegExp($('#id_keyterms_input').val(), "i");
-                $(this).css("display", regex.test(txt) ? 'block':'none');
+                $(this).css("display", regex.test(txt) ? 'block' : 'none');
             });
         });
 
@@ -80,17 +94,17 @@ function KeytermsXBlock(runtime, element, initData) {
         $("#id_keyterms_from option").on('dblclick', function(event) {
             event.preventDefault();
             var term = $(this).val();
-            data = {keyterm: term, course_id: courseid}
+            data = { keyterm: term, course_id: courseid }
             $.ajax({
                 type: "POST",
                 url: addkeywordhandlerUrl,
                 data: JSON.stringify(data),
                 async: false,
-                success: function(result){ updateKeyterms(result) }
+                success: function(result) { updateKeyterms(result) }
             });
             $(`#id_keyterms_from option[value='${term}']`).remove();
-            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-            gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
             edx.HtmlUtils.append($(chosen), html);
         });
 
@@ -98,38 +112,38 @@ function KeytermsXBlock(runtime, element, initData) {
         $("#id_keyterms_to option").on('dblclick', function(event) {
             event.preventDefault();
             var term = $(this).val();
-            data = {keyterm: term, course_id: courseid}
+            data = { keyterm: term, course_id: courseid }
             $.ajax({
                 type: "POST",
                 url: removekeywordhandlerUrl,
                 data: JSON.stringify(data),
                 async: false,
-                success: function(result){ updateKeyterms(result) }
+                success: function(result) { updateKeyterms(result) }
             });
             $(`#id_keyterms_to option[value='${term}']`).remove();
-            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-            gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+            var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
             edx.HtmlUtils.append($(available), html);
         });
-        
+
         // Handle selecting many elements
         $('#id_keyterms_add_link').on('click', function(event) {
             event.preventDefault();
-            var arr = $.map($('#id_keyterms_from option:selected'), function(option){
+            var arr = $.map($('#id_keyterms_from option:selected'), function(option) {
                 return option.value;
             });
             arr.forEach(term => {
-                data = {keyterm: term, course_id: courseid}
+                data = { keyterm: term, course_id: courseid }
                 $.ajax({
                     type: "POST",
                     url: addkeywordhandlerUrl,
                     data: JSON.stringify(data),
                     async: false,
-                    success: function(result){ updateKeyterms(result) }
+                    success: function(result) { updateKeyterms(result) }
                 });
                 $(`#id_keyterms_from option[value='${term}']`).remove();
-                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                    gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
                 edx.HtmlUtils.append($(chosen), html);
             });
         });
@@ -137,21 +151,21 @@ function KeytermsXBlock(runtime, element, initData) {
         // Handle selecting many elements
         $('#id_keyterms_remove_link').on('click', function(event) {
             event.preventDefault();
-            var arr = $.map($('#id_keyterms_to option:selected'), function(option){
+            var arr = $.map($('#id_keyterms_to option:selected'), function(option) {
                 return option.value;
             });
             arr.forEach(term => {
-                data = {keyterm: term, course_id: courseid}
+                data = { keyterm: term, course_id: courseid }
                 $.ajax({
                     type: "POST",
                     url: removekeywordhandlerUrl,
                     data: JSON.stringify(data),
                     async: false,
-                    success: function(result){ updateKeyterms(result) }
+                    success: function(result) { updateKeyterms(result) }
                 });
                 $(`#id_keyterms_to option[value='${term}']`).remove();
-                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                    gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
                 edx.HtmlUtils.append($(available), html);
             });
         });
@@ -159,21 +173,21 @@ function KeytermsXBlock(runtime, element, initData) {
         // Handle remove all button
         $('#id_keyterms_remove_all_link').on('click', function(event) {
             event.preventDefault();
-            var arr = $.map($('#id_keyterms_to option'), function(option){
+            var arr = $.map($('#id_keyterms_to option'), function(option) {
                 return option.value;
             });
             arr.forEach(term => {
-                data = {keyterm: term, course_id: courseid}
+                data = { keyterm: term, course_id: courseid }
                 $.ajax({
                     type: "POST",
                     url: removekeywordhandlerUrl,
                     data: JSON.stringify(data),
                     async: false,
-                    success: function(result){ updateKeyterms(result) }
+                    success: function(result) { updateKeyterms(result) }
                 });
                 $(`#id_keyterms_to option[value='${term}']`).remove();
-                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                    gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
                 edx.HtmlUtils.append($(available), html);
             });
         });
@@ -181,164 +195,210 @@ function KeytermsXBlock(runtime, element, initData) {
         // Handle choose all button
         $('#id_keyterms_add_all_link').on('click', function(event) {
             event.preventDefault();
-            var arr = $.map($('#id_keyterms_from option'), function(option){
+            var arr = $.map($('#id_keyterms_from option'), function(option) {
                 return option.value;
             });
             arr.forEach(term => {
-                data = {keyterm: term, course_id: courseid}
+                data = { keyterm: term, course_id: courseid }
                 $.ajax({
                     type: "POST",
                     url: addkeywordhandlerUrl,
                     data: JSON.stringify(data),
                     async: false,
-                    success: function(result){ updateKeyterms(result) }
+                    success: function(result) { updateKeyterms(result) }
                 });
                 $(`#id_keyterms_from option[value='${term}']`).remove();
 
-                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'), 
-                gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
+                var html = edx.HtmlUtils.joinHtml(edx.HtmlUtils.HTML('<option value="'), gettext(term), edx.HtmlUtils.HTML('" title="'),
+                    gettext(term), edx.HtmlUtils.HTML('">'), gettext(term), edx.HtmlUtils.HTML('</option>'));
                 edx.HtmlUtils.append($(chosen), html);
             });
         });
     }
 
     // initializing the data
-    
-    $(function() { 
-    // Getting courseid
+
+    $(function() {
+        // Getting courseid
         const url = window.location.href;
-        courseid = getStringBetween(url, 'block\-v1:', 'type').slice(0,-1);
-        
+        courseid = getStringBetween(url, 'block\-v1:', 'type').slice(0, -1);
+
         // Setting glossary url
         // $("#glossarymsg").html(`Click on or hover the term to reveal the definitions on the <a target="_blank" rel="noopener noreferrer" href="http://localhost:2000/course/course-v1:${courseid}/glossary">Glossary</a> page.`)
-        $("#glossarymsg").html(`Click on the term to reveal definition(s), links to courseware textbook or page content and external links for additional information.`)
+        $(".glossarymsg").html(`Click on the term to reveal definition(s), links to courseware textbook or page content and external links for additional information.`)
 
         // Getting all the keyterms. For devstack environments make sure to add 
         // `127.0.0.1  edx.devstack.keyterms-api` to `/etc/hosts` for your host machine since this
         // API call is handled in the client side.
         courseid.replace(" ", "+");
-        resturl = keyTermsAPIRootURL + '/api/v1/course_terms/?course_id=course-v1:'+ courseid;
+        resturl = keyTermsAPIRootURL + '/api/v1/course_terms/?course_id=course-v1:' + courseid;
 
         $.getJSON(resturl,
-        function(data, err) {
-            // Store list of all keyterms
-            keytermsJson = data;
-            keytermsJson.forEach( keyterm => allKeytermsSet.add(keyterm["key_name"]));
-        }).then(data=>
-            {
+            function(data, err) {
+                // Store list of all keyterms
+                keytermsJson = data;
+                keytermsJson.forEach(keyterm => allKeytermsSet.add(keyterm["key_name"]));
+            }).then(data => {
+            // Was adding code to style the accordian card header when clicked.
+            $(".card-header").each(function() {
+                const keyterm = this.getElementsByTagName("button")[0].innerText;
+                const keytermCardHeaderId = $(this).attr('id');
+                const keytermDataTarget = camelize("collapse " + keyterm);
+                const keytermDataTargetHashed = "#" + keytermDataTarget;
+                const keytermInformation = getKeyTermInfo(keyterm);
 
-                // Was adding code to style the accordian card header when clicked.
-                // `_.camelCase` from Lodash (https://lodash.com/) not working currently
-                // because this package is not installed. Was considering installing 
-                // Javascript library at platform level but it may be better to install
-                // at the XBlock level.
-                // $(".card-header").each(function() {
-                //     const keyterm = this.getElementsByTagName("button")[0].innerText;
-                //     const keytermCardHeaderId = $(this).attr('id');
-                //     const keytermDataTarget = _.camelCase("collapse" + keyterm);
-                //     const keytermDataTargetHashed = "#" + keytermDataTarget;
-                //     $(keytermDataTargetHashed).on('show.bs.collapse', function () {
-                //         $(keytermCardHeaderId).addClass("show");
-                //     });
-                //     $(keytermDataTargetHashed).on('hide.bs.collapse', function () {
-                //         $(keytermCardHeaderId).removeClass("show");
-                //     });
+                var formattedContent = `<div class="collapsible-box">`;
 
-                // });
+                // Definitions
+                if (keytermInformation["definitions"].length > 0) {
+                    formattedContent += `<div class="flex-col"><b>Definitions</b><ul class="bullets">`;
+                    keytermInformation["definitions"].forEach(definition => {
+                        formattedContent += `<li>${definition["description"]}</li>`
+                    })
+                    formattedContent += `</ul></div>`;
+                }
 
-                // Todo: Need to bring in content for `$(".card-body")` for each key-term
-                // similar to how the Glossary page handles the terms. Code below is commented
-                // out since that was specific to Popover <li>, however, most of this should 
-                // be reusable for the accordion card-body.
+                // Textbooks
+                if (keytermInformation["textbooks"].length > 0) {
+                    formattedContent += `<div class="flex-col"><b>Textbooks</b><ul class="bullets">`
+                    keytermInformation["textbooks"].forEach(textbook => {
+                        formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href='http://${cmsBaseURL}/textbooks_api/course-v1:${courseid}/${textbook["textbook_link"]}' class="btn">`
+                        formattedContent += `${textbook["chapter"]}\n(Page ${textbook["page_num"]})`
+                        formattedContent += `</a></li>`
+                    })
+                    formattedContent += `</ul></div>`;
+                }
 
-                // Showing information about definition on hover
-                // $(".keytermli").each(function() {
-                //     const keyterm = $(this).attr('id');
-                //     var keyterminfo = getKeyTermInfo(keyterm);
+                // Lessons
+                if (keytermInformation["lessons"].length > 0) {
+                    formattedContent += `<div class="flex-col"><b>Lesson Pages</b><ul class="bullets">`
+                    keytermInformation["lessons"].sort((a, b) => a.module_name === b.module_name ? (a.lesson_name > b.lesson_name ? 1 : -1) : (a.module_name > b.module_name ? 1 : -1))
+                    keytermInformation["lessons"].forEach(lesson => {
+                        formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href='${learningMicrofrontendURL}/course/course-v1:${courseid}/${lesson["lesson_link"]}' class="btn">`
+                        formattedContent += `${lesson["module_name"]} &gt; ${lesson["lesson_name"]} &gt; ${lesson["unit_name"]}`
+                        formattedContent += `</a></li>`
+                    })
+                    formattedContent += `</ul></div>`;
+                }
 
-                //     // Definitions
-                //     if (keyterminfo["definitions"].length > 0) {
-                //         var formattedContent = `<div class="outline-box"><h2>Definitions</h2><ul class="bullets">`;
-                //         keyterminfo["definitions"].forEach(definition => {
-                //             formattedContent += `<li>${definition["description"]}</li>`
-                //         })
-                //         formattedContent += `</ul></div>`;
-                //     }
+                // Resources
+                if (keytermInformation["resources"].length > 0) {
+                    formattedContent += `<div class="flex-col"><b>Resources</b><ul class="bullets">`
+                    keytermInformation["resources"].forEach(resource => {
+                        formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href="${resource["resource_link"]}">${resource["friendly_name"]}</a></li>`
+                    })
+                    formattedContent += `</ul></div>`;
+                }
 
-                //     // Textbooks
-                //     if (keyterminfo["textbooks"].length > 0) {
-                //         formattedContent += `<div class="outline-box"><h2>Textbooks</h2>`
-                //         keyterminfo["textbooks"].forEach(textbook => {
-                //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:18010/textbooks_api/course-v1:${courseid}/${textbook["textbook_link"]}' class="btn">`
-                //             formattedContent += `${textbook["chapter"]}\n(Page ${textbook["page_num"]})`
-                //             formattedContent += `</a>`
-                //         })
-                //         formattedContent += `</div>`;
-                //     }
-                    
-                //     // Lessons
-                //     if (keyterminfo["lessons"].length > 0) {
-                //         formattedContent += `<div class="outline-box"><h2>Lesson Pages</h2>`
-                //         keyterminfo["lessons"].sort((a, b) => a.module_name === b.module_name ? (a.lesson_name > b.lesson_name ? 1: -1) : (a.module_name > b.module_name ? 1: -1))
-                //         var currentheading = "";
-                //         keyterminfo["lessons"].forEach(lesson => {
-                //             if (currentheading != lesson["module_name"]) {
-                //                 currentheading = lesson["module_name"];
-                //                 formattedContent += `<h3 style="font-size:16px; text-decoration:underline;"> ${lesson["module_name"]} <h3>`
-                //             }
-                //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:2000/course/course-v1:${courseid}/${lesson["lesson_link"]}' class="btn">`
-                //             formattedContent += `${lesson["lesson_name"]} / ${lesson["unit_name"]}`
-                //             formattedContent += `</a>`
-                //         })
-                //         formattedContent += `</div>`;
-                //     }
+                formattedContent += `</div>`;
 
-                //     // Resources
-                //     if (keyterminfo["resources"].length > 0) {
-                //         formattedContent += `<div class="outline-box"><h2>Resources</h2><ul class="bullets">`
-                //         keyterminfo["resources"].forEach(resource => {
-                //             formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href="${resource["resource_link"]}">${resource["friendly_name"]}</a></li>`
-                //         })
-                //         formattedContent += `</ul></div>`;
-                //     }
+                try {
+                    var cardbody = keytermDataTargetHashed + " .card-body"
+                    $(cardbody).html(formattedContent);
+                } catch (e) {
+                    console.log(e);
+                }
 
-                //     // Setting up the popover
-                //     $(this).popover({
-                //         html : true,
-                //         content: formattedContent,
-                //         title: keyterm,
-                //         trigger: "manual",
-                //     }).on("mouseenter", function() {
-                //         var _this = this;
-                //         $(this).popover("show");
-                //         $(".popover").on("mouseleave", function() {
-                //           $(_this).popover('hide');
-                //         });
-                //     }).on("mouseleave", function() {
-                //         var _this = this;
-                //         setTimeout(function() {
-                //           if (!$(".popover:hover").length) {
-                //             $(_this).popover("hide");
-                //           }
-                //         }, 100);
-                //     });
-                // });
-
-                // Enabling popovers
-                // $('[data-toggle="popover"]').popover({
-                //     container: 'html'
-                // })
-
-                var data = {course_id: courseid};
-                $.ajax({
-                    type: "POST",
-                    url: getincludedkeytermshandlerUrl,
-                    data: JSON.stringify(data),
-                    success: populateOptions
+                /*
+                $(keytermDataTargetHashed).on('show.bs.collapse', function () {
+                    $(keytermCardHeaderId).addClass("show");
                 });
-            }
-        )
+                $(keytermDataTargetHashed).on('hide.bs.collapse', function () {
+                    $(keytermCardHeaderId).removeClass("show");
+                });
+                */
+            });
+
+            // Todo: Need to bring in content for `$(".card-body")` for each key-term
+            // similar to how the Glossary page handles the terms. Code below is commented
+            // out since that was specific to Popover <li>, however, most of this should 
+            // be reusable for the accordion card-body.
+
+            // Showing information about definition on hover
+            // $(".keytermli").each(function() {
+            //     const keyterm = $(this).attr('id');
+            //     var keyterminfo = getKeyTermInfo(keyterm);
+
+            //     // Definitions
+            //     if (keyterminfo["definitions"].length > 0) {
+            //         var formattedContent = `<div class="outline-box"><h2>Definitions</h2><ul class="bullets">`;
+            //         keyterminfo["definitions"].forEach(definition => {
+            //             formattedContent += `<li>${definition["description"]}</li>`
+            //         })
+            //         formattedContent += `</ul></div>`;
+            //     }
+
+            //     // Textbooks
+            //     if (keyterminfo["textbooks"].length > 0) {
+            //         formattedContent += `<div class="outline-box"><h2>Textbooks</h2>`
+            //         keyterminfo["textbooks"].forEach(textbook => {
+            //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:18010/textbooks_api/course-v1:${courseid}/${textbook["textbook_link"]}' class="btn">`
+            //             formattedContent += `${textbook["chapter"]}\n(Page ${textbook["page_num"]})`
+            //             formattedContent += `</a>`
+            //         })
+            //         formattedContent += `</div>`;
+            //     }
+
+            //     // Lessons
+            //     if (keyterminfo["lessons"].length > 0) {
+            //         formattedContent += `<div class="outline-box"><h2>Lesson Pages</h2>`
+            //         keyterminfo["lessons"].sort((a, b) => a.module_name === b.module_name ? (a.lesson_name > b.lesson_name ? 1: -1) : (a.module_name > b.module_name ? 1: -1))
+            //         var currentheading = "";
+            //         keyterminfo["lessons"].forEach(lesson => {
+            //             if (currentheading != lesson["module_name"]) {
+            //                 currentheading = lesson["module_name"];
+            //                 formattedContent += `<h3 style="font-size:16px; text-decoration:underline;"> ${lesson["module_name"]} <h3>`
+            //             }
+            //             formattedContent += `<a target="_blank" rel="noopener noreferrer" href='http://localhost:2000/course/course-v1:${courseid}/${lesson["lesson_link"]}' class="btn">`
+            //             formattedContent += `${lesson["lesson_name"]} / ${lesson["unit_name"]}`
+            //             formattedContent += `</a>`
+            //         })
+            //         formattedContent += `</div>`;
+            //     }
+
+            //     // Resources
+            //     if (keyterminfo["resources"].length > 0) {
+            //         formattedContent += `<div class="outline-box"><h2>Resources</h2><ul class="bullets">`
+            //         keyterminfo["resources"].forEach(resource => {
+            //             formattedContent += `<li><a target="_blank" rel="noopener noreferrer" href="${resource["resource_link"]}">${resource["friendly_name"]}</a></li>`
+            //         })
+            //         formattedContent += `</ul></div>`;
+            //     }
+
+            //     // Setting up the popover
+            //     $(this).popover({
+            //         html : true,
+            //         content: formattedContent,
+            //         title: keyterm,
+            //         trigger: "manual",
+            //     }).on("mouseenter", function() {
+            //         var _this = this;
+            //         $(this).popover("show");
+            //         $(".popover").on("mouseleave", function() {
+            //           $(_this).popover('hide');
+            //         });
+            //     }).on("mouseleave", function() {
+            //         var _this = this;
+            //         setTimeout(function() {
+            //           if (!$(".popover:hover").length) {
+            //             $(_this).popover("hide");
+            //           }
+            //         }, 100);
+            //     });
+            // });
+
+            // Enabling popovers
+            // $('[data-toggle="popover"]').popover({
+            //     container: 'html'
+            // })
+
+            var data = { course_id: courseid };
+            $.ajax({
+                type: "POST",
+                url: getincludedkeytermshandlerUrl,
+                data: JSON.stringify(data),
+                success: populateOptions
+            });
+        })
     });
 }
-
-

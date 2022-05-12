@@ -52,10 +52,6 @@ class KeytermsXBlock(XBlock):
         'data-parent', 'data-target', 'data-toggle', 'id', 'type'
     ]
 
-    root_url = configuration_helpers.get_value('LMS_ROOT_URL', settings.LMS_ROOT_URL)
-
-    root_url = "localhost"
-
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
@@ -73,13 +69,16 @@ class KeytermsXBlock(XBlock):
         frag.add_css(self.resource_string("static/css/popover.css"))
         frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
+        frag.add_css(self.resource_string("static/css/collapse.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
         frag.initialize_js(
             'KeytermsXBlock', {
+                'cmsBaseURL': settings.CMS_BASE,
                 'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
                 'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
             }
         )
+
         return frag
 
     def studio_view(self, context=None):
@@ -87,14 +86,18 @@ class KeytermsXBlock(XBlock):
         frag = Fragment(html.format(self=self))
         frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_css(self.resource_string("static/css/popover.css"))
+        frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
+        frag.add_css(self.resource_string("static/css/collapse.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
         frag.initialize_js(
             'KeytermsXBlock', {
+                'cmsBaseURL': settings.CMS_BASE,
                 'keyTermsAPIRootURL': settings.KEY_TERMS_API_ROOT_URL,
                 'learningMicrofrontendURL': settings.LEARNING_MICROFRONTEND_URL
             }
         )
+
         return frag
 
     @XBlock.json_handler
@@ -149,15 +152,15 @@ class KeytermsXBlock(XBlock):
             cardItem = '<div class="card">\n'
             cardItem += '   <div class="card-header" id="{keyterm_card_header_id}">\n'
             cardItem += '      <h5 class="mb-0">\n'
-            cardItem += '         <button class="btn btn-link" data-toggle="collapse" data-target="{keyterm_data_target_hashed}" aria-expanded="true" aria-controls="{keyterm_data_target}">\n'
+            cardItem += '         <button class="collapse-btn collapse-btn-link" data-toggle="collapse" data-target="{keyterm_data_target_hashed}" aria-expanded="true" aria-controls="{keyterm_data_target}">\n'
             cardItem += '            <i class="fa fa-chevron-down pull-right"></i>'
-            cardItem += '            {keyterm}\n'
+            cardItem += '            <div class="keyterm-title"> {keyterm} </div> \n'
             cardItem += '         </button>\n'
             cardItem += '      </h5>\n'
             cardItem += '   </div>\n'
             cardItem += '   <div id="{keyterm_data_target}" class="collapse {keyterm_show}" aria-labelledby="{keyterm_card_header_id}" data-parent="{div_parent_id}">\n'
             cardItem += '      <div class="card-body">\n'
-            cardItem += '         This is a test.\n'
+            cardItem += '         Example Content.\n'
             cardItem += '      </div>\n'
             cardItem += '   </div>\n'
             cardItem += '</div>\n'

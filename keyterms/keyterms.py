@@ -65,11 +65,11 @@ class KeytermsXBlock(XBlock):
         """
         html = self.resource_string("static/html/keyterms.html")
         frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_css(self.resource_string("static/css/popover.css"))
         frag.add_css(self.resource_string("static/css/textbox.css"))
         frag.add_css(self.resource_string("static/css/multiselect.css"))
         frag.add_css(self.resource_string("static/css/collapse.css"))
+        frag.add_css(self.resource_string("static/css/keyterms.css"))
         frag.add_javascript(self.resource_string("static/js/src/keyterms.js"))
         frag.initialize_js(
             'KeytermsXBlock', {

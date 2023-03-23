@@ -158,7 +158,7 @@ class KeytermsXBlock(XBlock):
             cardItem += '      </h5>\n'
             cardItem += '   </div>\n'
             cardItem += '   <div id="{keyterm_data_target}" class="collapse {keyterm_show}" aria-labelledby="{keyterm_card_header_id}" data-parent="{div_parent_id}">\n'
-            cardItem += '      <div class="card-body">\n'
+            cardItem += '      <div class="{keyterm_data_target} card-body">\n'
             cardItem += '         Example Content.\n'
             cardItem += '      </div>\n'
             cardItem += '   </div>\n'

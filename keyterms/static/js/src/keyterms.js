@@ -252,7 +252,14 @@ function KeytermsXBlock(runtime, element, initData) {
 
                 // Definitions
                 if (keytermInformation["definitions"].length > 0) {
-                    formattedContent += `<div class="flex-col"><b>Definitions</b><ul class="bullets">`;
+                    formattedContent += `<div class="flex-col">`
+                    if (keytermInformation["definitions"].length > 1) {
+                        formattedContent += `<b>Definitions</b>`
+                    }
+                    else {
+                        formattedContent += `<b>Definition</b>`
+                    }
+                    formattedContent += `<ul class="bullets">`;
                     keytermInformation["definitions"].forEach(definition => {
                         formattedContent += `<li>${definition["description"]}</li>`
                     })

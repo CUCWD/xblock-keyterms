@@ -141,6 +141,9 @@ class KeytermsXBlock(XBlock):
         """
         This handler updates the html to be displayed to the user.
         """
+        # make sure keyterms are in alphabetical order
+        list.sort()
+
         self.keytermhtml = ""
         for keyterm in list:
             div_parent_id = "#allKeytermsList"

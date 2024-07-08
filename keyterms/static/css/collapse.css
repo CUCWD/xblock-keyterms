@@ -195,7 +195,7 @@ tbody.collapse.in {
 .collapse-btn {
     display: block;
     font-weight: 400;
-    text-align: center;
+    text-align: left;
     white-space: nowrap;
     -webkit-user-select: none;
     -moz-user-select: none;

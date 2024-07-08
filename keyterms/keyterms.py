@@ -141,11 +141,16 @@ class KeytermsXBlock(XBlock):
         """
         This handler updates the html to be displayed to the user.
         """
+        # make sure keyterms are in alphabetical order
+        list.sort()
+
         self.keytermhtml = ""
         for keyterm in list:
             div_parent_id = "#allKeytermsList"
-            keyterm_card_header_id = pydash.camel_case("heading" + keyterm)
-            keyterm_data_target = pydash.camel_case("collapse" + keyterm)
+            # remove all non alphanumeric characters and capitalize each word in keyterm. This matches what is being done in keyterms.js 
+            clean_keyterm = ''.join(char for char in keyterm.title() if char.isalnum())
+            keyterm_card_header_id = "heading" + clean_keyterm
+            keyterm_data_target = "collapse" + clean_keyterm
             keyterm_data_target_hashed = f'#{keyterm_data_target}'
             keyterm_show = ("show" if list[0] == keyterm else "")
             cardItem = '<div class="card">\n'
@@ -158,8 +163,8 @@ class KeytermsXBlock(XBlock):
             cardItem += '      </h5>\n'
             cardItem += '   </div>\n'
             cardItem += '   <div id="{keyterm_data_target}" class="collapse {keyterm_show}" aria-labelledby="{keyterm_card_header_id}" data-parent="{div_parent_id}">\n'
-            cardItem += '      <div class="card-body">\n'
-            cardItem += '         Example Content.\n'
+            cardItem += '      <div class="{keyterm_data_target} card-body">\n'
+            cardItem += '         Error loading content.\n'
             cardItem += '      </div>\n'
             cardItem += '   </div>\n'
             cardItem += '</div>\n'

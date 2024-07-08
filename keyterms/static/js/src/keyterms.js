@@ -6,9 +6,11 @@
 function camelize(str) {
     return str.toLowerCase()
         // Replaces any - or _ characters with a space 
-        .replace(/[-_]+/g, ' ')
+        .replace(/[-_/]+/g, ' ')
         // Removes any non alphanumeric characters 
         .replace(/[^\w\s]/g, '')
+        // Ensure there are no double spaces after removing characters
+        .replace(/  /g, ' ')
         // Uppercases the first character in each group immediately following a space 
         // (delimited by spaces) 
         .replace(/ (.)/g, function($1) { return $1.toUpperCase(); })
@@ -238,6 +240,17 @@ function KeytermsXBlock(runtime, element, initData) {
             function(data, err) {
                 // Store list of all keyterms
                 keytermsJson = data;
+                // Sorts the keyterms into alphabetical order
+                keytermsJson.sort((a, b) => {
+                    if (a.key_name < b.key_name) {
+                      return -1;
+                    }
+                    if (a.key_name > b.key_name) {
+                      return 1;
+                    }
+                    return 0;
+                  });
+                allKeytermsSet.clear();
                 keytermsJson.forEach(keyterm => allKeytermsSet.add(keyterm["key_name"]));
             }).then(data => {
             // Was adding code to style the accordian card header when clicked.
@@ -252,7 +265,14 @@ function KeytermsXBlock(runtime, element, initData) {
 
                 // Definitions
                 if (keytermInformation["definitions"].length > 0) {
-                    formattedContent += `<div class="flex-col"><b>Definitions</b><ul class="bullets">`;
+                    formattedContent += `<div class="flex-col">`
+                    if (keytermInformation["definitions"].length > 1) {
+                        formattedContent += `<b>Definitions</b>`
+                    }
+                    else {
+                        formattedContent += `<b>Definition</b>`
+                    }
+                    formattedContent += `<ul class="bullets">`;
                     keytermInformation["definitions"].forEach(definition => {
                         formattedContent += `<li>${definition["description"]}</li>`
                     })
@@ -310,7 +330,7 @@ function KeytermsXBlock(runtime, element, initData) {
                 */
             });
 
-            var data = { course_id: courseid };
+            var data = { keyterms: allKeytermsSet, course_id: courseid };
             $.ajax({
                 type: "POST",
                 url: getincludedkeytermshandlerUrl,

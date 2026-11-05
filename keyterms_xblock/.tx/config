@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+
+[o:open-edx:p:p:xblocks:r:keyterms-xblock]
+file_filter = keyterms_xblock/translations/<lang>/LC_MESSAGES/text.po
+source_file = keyterms_xblock/translations/en/LC_MESSAGES/text.po
+source_lang = en
+type        = PO
